@@ -1,0 +1,231 @@
+=====================================================================================
+  REAL-TIME TRAFFIC DATA COLLECTION - API SETUP GUIDE
+=====================================================================================
+
+  This guide will help you get FREE API keys from 3 services.
+  Total cost: $0 (all within free tier limits)
+  Time to setup: ~15 minutes
+
+=====================================================================================
+  STEP 0: INSTALL PYTHON DEPENDENCY
+=====================================================================================
+
+  Open Command Prompt and run:
+
+    pip install requests
+
+  That's the only dependency needed!
+
+=====================================================================================
+  STEP 1: GET TOMTOM API KEY (5 minutes)
+=====================================================================================
+
+  TomTom provides: Real-time speed, free-flow speed, travel time, incidents
+  Free limit: 2,500 requests/day (we need ~1,536/day)
+
+  1. Go to: https://developer.tomtom.com
+  2. Click "Register" (top right)
+  3. Fill in:
+     - Email: your email
+     - Password: create a password
+     - Name: Your name
+     - Use case: "Academic Research"
+  4. Verify your email
+  5. After login, go to: https://developer.tomtom.com/user/me/apps
+  6. Click "Add New Key" or you'll see a default key
+  7. Copy the API Key (looks like: aB3cD4eF5gH6iJ7kL8mN9oP0)
+  8. Open config.py and replace:
+     TOMTOM_API_KEY = "YOUR_TOMTOM_API_KEY_HERE"
+     with:
+     TOMTOM_API_KEY = "aB3cD4eF5gH6iJ7kL8mN9oP0"  (your actual key)
+
+  NOTE: No credit card required!
+
+=====================================================================================
+  STEP 2: GET HERE API KEY (5 minutes)
+=====================================================================================
+
+  HERE provides: Speed, free-flow speed, jamFactor (0-10 congestion scale)
+  Free limit: 250,000 requests/month (we need ~46,000/month)
+
+  1. Go to: https://developer.here.com
+  2. Click "Sign up"
+  3. Fill in your details (use "Academic/Education" as purpose)
+  4. Verify your email
+  5. After login, go to: https://platform.here.com/admin/apps
+  6. Create a new app or use the default one
+  7. Go to the app -> "API Keys" tab
+  8. Click "Create API Key"
+  9. Copy the API Key
+  10. Open config.py and replace:
+      HERE_API_KEY = "YOUR_HERE_API_KEY_HERE"
+      with your actual key
+
+  NOTE: No credit card required! Select "Freemium" plan.
+
+=====================================================================================
+  STEP 3: GET OPENWEATHERMAP API KEY (5 minutes)
+=====================================================================================
+
+  OpenWeatherMap provides: Weather condition, temperature, humidity, wind, rain
+  Free limit: 1,000 requests/day (we need ~96/day)
+
+  IMPORTANT: We use the "One Call API 3.0" which requires a credit card BUT
+  you can set the daily limit to 1,000 calls (free) so you'll NEVER be charged.
+
+  1. Go to: https://openweathermap.org
+  2. Click "Sign In" -> "Create an Account"
+  3. Fill in details, verify email
+  4. After login, go to: https://home.openweathermap.org/api_keys
+  5. Copy your API key (auto-generated)
+  6. Go to: https://home.openweathermap.org/subscriptions
+  7. Subscribe to "One Call API 3.0" (requires card)
+  8. IMPORTANT: Set "Calls per day" limit to 1,000 (this ensures FREE usage)
+  9. Open config.py and replace:
+     OPENWEATHER_API_KEY = "YOUR_OPENWEATHER_API_KEY_HERE"
+     with your actual key
+
+  ALTERNATIVE (No credit card):
+  If you don't want to enter a credit card, use the free "Current Weather API":
+  - Change OPENWEATHER_URL in config.py to:
+    "https://api.openweathermap.org/data/2.5/weather"
+  - The collector will still work (slightly different response format)
+
+=====================================================================================
+  STEP 4: TEST YOUR API CONNECTIONS
+=====================================================================================
+
+  After adding all 3 keys to config.py, test them:
+
+    cd RAC4_Revised/Realtime_Data_Collection
+    python realtime_data_collector.py --test
+
+  You should see:
+    1. TomTom Traffic Flow API... SUCCESS!
+    2. HERE Traffic Flow API... SUCCESS!
+    3. OpenWeatherMap API... SUCCESS!
+    4. TomTom Incidents API... SUCCESS!
+
+  If any fail, check:
+    - Is the API key correct? (no extra spaces)
+    - Is your internet connected?
+    - Wait 10 minutes after creating a new key (activation delay)
+
+=====================================================================================
+  STEP 5: RUN YOUR FIRST COLLECTION
+=====================================================================================
+
+  Single collection (test):
+
+    python realtime_data_collector.py
+
+  This will:
+    - Fetch data for all 16 Bangalore roads
+    - Save to data/raw_traffic_data.csv
+    - Take about 30 seconds
+
+=====================================================================================
+  STEP 6: START AUTOMATED COLLECTION (3 months)
+=====================================================================================
+
+  OPTION A: Continuous mode (keep terminal open):
+
+    python realtime_data_collector.py --continuous
+
+    This runs every 15 minutes until you press Ctrl+C.
+    Good for testing, but stops when you close the terminal.
+
+  OPTION B: Windows Task Scheduler (recommended for 3 months):
+
+    python setup_scheduler.py --create
+
+    This creates a background task that runs every 15 minutes,
+    even when you're not logged in. It will keep collecting for months.
+
+    To check status:  python setup_scheduler.py --status
+    To stop:          python setup_scheduler.py --delete
+
+  OPTION C: Batch scripts:
+
+    Double-click START_COLLECTION.bat to start
+    Double-click STOP_COLLECTION.bat to stop
+
+=====================================================================================
+  STEP 7: PREPROCESS DATA (Run periodically)
+=====================================================================================
+
+  After collecting data for a few days, convert to daily format:
+
+    python preprocess_realtime_data.py
+
+  This creates: data/bangalore_realtime_daily.csv
+  With the SAME 16 columns as the Kaggle dataset!
+
+  To check data quality:
+
+    python preprocess_realtime_data.py --report
+
+=====================================================================================
+  COST CALCULATION (3 MONTHS)
+=====================================================================================
+
+  Collection: 16 roads x 96 times/day = 1,536 API calls/day
+
+  TomTom:         1,536/day  (free limit: 2,500/day)     = FREE
+  HERE:          46,080/month (free limit: 250,000/month)  = FREE
+  OpenWeatherMap:    96/day  (free limit: 1,000/day)      = FREE
+
+  TOTAL COST FOR 3 MONTHS: $0
+
+=====================================================================================
+  DATA OUTPUT FORMAT
+=====================================================================================
+
+  Raw data (15-min intervals): data/raw_traffic_data.csv
+    - ~138,240 records over 3 months
+    - Contains: timestamp, speed, travel time, jam factor, weather, incidents
+
+  Daily data (Kaggle format): data/bangalore_realtime_daily.csv
+    - ~1,440 records over 3 months (16 roads x 90 days)
+    - Same 16 columns as the original Bangalore Traffic Dataset
+    - Ready to use with your ML models!
+
+=====================================================================================
+  TROUBLESHOOTING
+=====================================================================================
+
+  Q: API returns 401 Unauthorized?
+  A: Your API key is wrong or not activated yet. Wait 10 minutes.
+
+  Q: API returns 429 Too Many Requests?
+  A: You've hit the rate limit. The collector handles this automatically
+     with delays. If persistent, increase time.sleep() in collector.
+
+  Q: No data for some roads?
+  A: Some API endpoints may not have coverage for exact GPS coordinates.
+     Try slightly adjusting lat/lon in config.py (by 0.001 degree).
+
+  Q: Computer goes to sleep?
+  A: In Windows Power Settings, set "Sleep" to "Never" while collecting.
+     Or use Task Scheduler which wakes the computer.
+
+  Q: How much disk space is needed?
+  A: ~50 MB for 3 months of raw data. Very small.
+
+=====================================================================================
+  FOLDER STRUCTURE
+=====================================================================================
+
+  Realtime_Data_Collection/
+  |-- config.py                    # API keys and road locations
+  |-- realtime_data_collector.py   # Main data collection script
+  |-- preprocess_realtime_data.py  # Convert raw -> daily (Kaggle format)
+  |-- setup_scheduler.py           # Automate collection
+  |-- API_SETUP_GUIDE.txt          # This file
+  |-- data/
+  |   |-- raw_traffic_data.csv     # 15-minute interval raw data
+  |   |-- bangalore_realtime_daily.csv  # Daily aggregated data
+  |-- logs/
+  |   |-- collection.log           # Collection activity log
+
+=====================================================================================

@@ -1,0 +1,442 @@
+===============================================================================
+PROJECT FILE DOCUMENTATION
+===============================================================================
+Research: "Predict and Mitigate Road Traffic Flow Using Machine Learning"
+Scholar: Deepa C | Reg. No: 2390019
+Total Python Files: 16 | Total Lines of Code: ~8,971
+===============================================================================
+
+
+===============================================================================
+1. ROOT DIRECTORY (RAC4_Revised/)
+===============================================================================
+
+  FILE: app.py                                              [621 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  ODTC ML Framework - Interactive Web Dashboard
+  RUN:      streamlit run app.py
+  WHAT IT DOES:
+    - Interactive Streamlit dashboard for visualizing ODTC framework results
+    - Upload dataset and run the full 5-stage ODTC pipeline interactively
+    - Displays stage-by-stage results, model comparisons, feature selection
+    - Live charts for R², RMSE, training time, and online adaptation
+    - Uses odtc_engine.py as the backend computation engine
+  DEPENDS ON: odtc_engine.py, Kaggle dataset
+
+
+  FILE: odtc_engine.py                                      [504 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  ODTC Pipeline Engine (Backend - NOT run directly)
+  RUN:      Not run directly. Imported by app.py and step7.
+  WHAT IT DOES:
+    - Stateless functions for the ODTC ML pipeline
+    - Stage 1: Multi-Scale Temporal Feature Engineering (MSTFE)
+    - Stage 2: Dynamic Context Enrichment (DCE)
+    - Stage 3: Adaptive Feature Selection (AFS)
+    - Stage 4: Multi-Model Ensemble with Stacking (MES)
+    - Stage 5: Online Adaptation Module (OAM)
+    - Defines REQUIRED_COLUMNS, EXCLUDE_COLS, model definitions
+    - No print statements, no matplotlib, no file I/O (pure computation)
+  DEPENDS ON: Nothing (standalone module)
+
+
+===============================================================================
+2. RAC4_Models/ - INDIVIDUAL ML MODEL PIPELINE
+===============================================================================
+
+  FILE: step1_data_preprocessing.py                         [557 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Data Loading, Exploration & Preprocessing
+  RUN:      python step1_data_preprocessing.py
+  WHAT IT DOES:
+    - Loads raw Kaggle dataset (Banglore_traffic_Dataset.csv)
+    - Exploratory Data Analysis (EDA) with visualizations
+    - Missing value analysis and handling
+    - Feature engineering: extracts temporal features from Date column
+      (Year, Month, Day, DayOfWeek, WeekOfYear, IsWeekend, Quarter)
+    - Encodes categorical variables (Weather, Area, Road, Roadwork)
+    - Correlation analysis with heatmap
+    - Target variable (Traffic Volume) distribution analysis
+    - Feature scaling using StandardScaler
+    - Train-Test split (70/30, random_state=42)
+    - Saves all processed data to CSV files
+  NUMERIC FEATURES USED (5):
+    - Average Speed, Travel Time Index, Congestion Level,
+      Road Capacity Utilization, Incident Reports
+  OUTPUT FILES:
+    - outputs/01_Preprocessing/missing_values.png
+    - outputs/01_Preprocessing/correlation_heatmap.png
+    - outputs/01_Preprocessing/target_distribution.png
+    - outputs/01_Preprocessing/feature_distributions.png
+    - outputs/01_Preprocessing/scatter_top_features.png
+    - outputs/01_Preprocessing/train_test_split.png
+    - outputs/01_Preprocessing/preprocessing_summary.txt
+    - outputs/processed_data/cleaned_full_dataset.csv
+    - outputs/processed_data/X_train.csv, X_test.csv
+    - outputs/processed_data/y_train.csv, y_test.csv
+    - outputs/processed_data/X_train_scaled.csv, X_test_scaled.csv
+    - outputs/processed_data/metadata.json
+  DEPENDS ON: Kaggle dataset only
+  MUST RUN FIRST: All other steps depend on this.
+
+
+  FILE: step2_temporal_analysis.py                          [481 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Temporal Pattern Analysis & Traffic Fluctuation Study
+  RUN:      python step2_temporal_analysis.py
+  WHAT IT DOES:
+    - Monthly traffic volume trends (2022-2024) with annotations
+    - Day-of-week patterns (weekday vs weekend)
+    - Seasonal/quarterly patterns
+    - Year-over-year comparison
+    - Area-wise traffic patterns (8 areas)
+    - Area-Month heatmap
+    - Weather impact on traffic (Clear, Rain, Fog, Windy)
+    - Roadwork impact analysis
+    - Written explanations for every notable fluctuation
+  OUTPUT FILES:
+    - outputs/02_Temporal_Analysis/daily_time_series.png
+    - outputs/02_Temporal_Analysis/monthly_trend_annotated.png
+    - outputs/02_Temporal_Analysis/quarterly_seasonal_pattern.png
+    - outputs/02_Temporal_Analysis/day_of_week_pattern.png
+    - outputs/02_Temporal_Analysis/area_wise_traffic.png
+    - outputs/02_Temporal_Analysis/area_month_heatmap.png
+    - outputs/02_Temporal_Analysis/weather_impact.png
+    - outputs/02_Temporal_Analysis/roadwork_impact.png
+    - outputs/02_Temporal_Analysis/year_over_year_comparison.png
+    - outputs/02_Temporal_Analysis/temporal_fluctuation_report.txt
+  DEPENDS ON: Step 1 (reads cleaned_full_dataset.csv)
+
+
+  FILE: step3_model_training.py                             [656 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Train & Evaluate 10 ML Models Individually
+  RUN:      python step3_model_training.py
+  WHAT IT DOES:
+    - Trains each model separately with detailed evaluation
+    - Models trained:
+        1. Linear Regression
+        2. Ridge Regression (alpha=0.001)
+        3. Lasso Regression (alpha=0.01)
+        4. ElasticNet (alpha=0.01, l1_ratio=0.5)
+        5. SVR with RBF kernel (C=100)
+        6. KNN (k=8, distance-weighted)
+        7. Decision Tree (max_depth=15)
+        8. Random Forest (200 trees, max_depth=20)
+        9. Extra Trees (200 trees, max_depth=20)
+       10. Gradient Boosting (300 estimators, lr=0.05)
+    - For each model generates:
+        - Predicted vs Actual scatter plot
+        - Residual analysis plot
+        - Train vs Test metrics comparison
+        - Feature importance (where applicable)
+        - Detailed text report with R², RMSE, MAE, MAPE
+    - Cross-validation (5-fold) for each model
+  OUTPUT FILES:
+    - outputs/03_Models/01_LinearRegression/ through 10_GradientBoosting/
+      (each with: predicted_vs_actual.png, residual_analysis.png,
+       train_vs_test_metrics.png, report.txt)
+    - outputs/03_Models/all_results_comparison.csv
+  DEPENDS ON: Step 1 (reads X_train.csv, X_test.csv, etc.)
+
+
+  FILE: step4_model_comparison.py                           [442 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Compare All Models & Generate Final Ranking
+  RUN:      python step4_model_comparison.py
+  WHAT IT DOES:
+    - Comprehensive comparison table of all models
+    - R² score comparison bar chart
+    - RMSE comparison bar chart
+    - Training time comparison
+    - Overfitting analysis (train R² vs test R²)
+    - Multi-metric scatter plot (R² vs RMSE)
+    - Utility score calculation and ranking
+    - Radar chart comparing top models
+    - Best model per category identification
+    - Final recommendation report
+  OUTPUT FILES:
+    - outputs/04_Comparison/comparison_table.png
+    - outputs/04_Comparison/r2_comparison.png
+    - outputs/04_Comparison/rmse_comparison.png
+    - outputs/04_Comparison/training_time_comparison.png
+    - outputs/04_Comparison/overfitting_analysis.png
+    - outputs/04_Comparison/multimetric_comparison.png
+    - outputs/04_Comparison/utility_score_ranking.png
+    - outputs/04_Comparison/variant_comparison_*.png (per model type)
+    - outputs/04_Comparison/final_ranked_results.csv
+    - outputs/04_Comparison/final_recommendation_report.txt
+  DEPENDS ON: Step 3 (reads all_results_comparison.csv)
+
+
+  FILE: step5_model_improvements.py                         [590 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Hyperparameter Tuning & Model Improvement Analysis
+  RUN:      python step5_model_improvements.py
+  WHAT IT DOES:
+    - For each model, identifies weaknesses and applies improvements:
+        - Linear Regression: Feature selection, polynomial features
+        - Ridge/Lasso/ElasticNet: Alpha tuning via GridSearchCV
+        - SVR: Feature scaling + C/gamma tuning
+        - KNN: Elbow method for optimal k, weighted KNN
+        - Decision Tree: Pruning, optimal max_depth via validation curve
+        - Random Forest: n_estimators and max_features tuning
+        - Gradient Boosting: Learning rate schedule, early stopping
+    - Before vs After comparison for each model
+    - Overall improvement summary
+  OUTPUT FILES:
+    - outputs/05_Improvements/01_LinearRegression/ through 08_SVR/
+      (each with: predicted_vs_actual.png, report.txt,
+       plus model-specific plots like elbow_method.png, validation_curve.png)
+    - outputs/05_Improvements/improvement_summary.csv
+    - outputs/05_Improvements/improvement_summary_report.txt
+    - outputs/05_Improvements/overall_improvement_summary.png
+  DEPENDS ON: Step 1 (reads processed data directly)
+
+
+  FILE: step6_run_all.py                                    [113 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Master Pipeline Runner (Runs Steps 1-5 Automatically)
+  RUN:      python step6_run_all.py
+  WHAT IT DOES:
+    - Executes step1 through step5 in sequence using subprocess
+    - Reports success/failure for each step
+    - Total execution time: ~15 minutes
+    - Produces all 200+ output files in one command
+  OUTPUT FILES: Same as Steps 1-5 combined
+  DEPENDS ON: All step files must exist in same directory
+
+
+===============================================================================
+3. ODTC_Framework/ - NOVEL ML FRAMEWORK (PhD Contribution)
+===============================================================================
+
+  FILE: step7_ODTC_ML_Framework.py                         [1,107 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Online Dynamic Temporal Context (ODTC) ML Framework
+  RUN:      python step7_ODTC_ML_Framework.py
+  WHAT IT DOES:
+    - Novel 5-stage ML pipeline (the PhD's main contribution):
+
+      STAGE 1 - MSTFE (Multi-Scale Temporal Feature Engineering):
+        Creates ~39 temporal features from Date column
+        Short-term: Year, Month, Day, DayOfWeek, IsWeekend
+        Medium-term: WeekOfYear, Quarter, cyclical sin/cos encodings
+        Long-term: DaysSinceStart, YearProgress
+        Lag features: 1-day, 3-day, 7-day lags per road
+        Rolling statistics: 3-day and 7-day mean/std per road
+        Trend indicators: 3-day traffic and speed trends
+
+      STAGE 2 - DCE (Dynamic Context Enrichment):
+        Area-Road interaction features
+        Congestion-Speed dynamics (ratio, gap, density)
+        Weather-Temporal cross features (weather x weekend)
+        Infrastructure stress indicators
+
+      STAGE 3 - AFS (Adaptive Feature Selection):
+        Mutual Information ranking
+        Random Forest importance ranking
+        Combined ranking with top 70% selection
+
+      STAGE 4 - MES (Multi-Model Ensemble with Stacking):
+        Level-0: Ridge, RF, GB, ExtraTrees, DecisionTree
+        Level-1: Ridge meta-learner (5-fold CV stacking)
+        Weighted Voting Ensemble (CV-based weights)
+        ODTC = best of Stacking vs Weighted
+
+      STAGE 5 - OAM (Online Adaptation Module):
+        Sliding window retraining simulation
+        Static vs Online model comparison
+        Concept drift detection
+
+    - Compares ODTC vs all individual baselines
+    - Calculates improvement percentages
+  OUTPUT FILES:
+    - outputs/01_feature_selection.png
+    - outputs/02_framework_architecture.png
+    - outputs/03_R2_ranking.png
+    - outputs/04_multi_metric_comparison.png
+    - outputs/05_improvement_over_baselines.png
+    - outputs/06_predicted_vs_actual.png
+    - outputs/07_online_adaptation.png
+    - outputs/08_time_vs_performance.png
+    - outputs/09_results_table.png
+    - outputs/comparison_results.csv
+    - outputs/framework_report.txt
+  DEPENDS ON: Kaggle dataset directly (independent of Steps 1-6)
+
+
+  FILE: generate_flow_diagrams.py                           [651 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Generate Research Architecture Diagrams for Thesis
+  RUN:      python generate_flow_diagrams.py
+  WHAT IT DOES:
+    - Full Research Architecture Flow Diagram (PhD overview)
+    - Detailed ODTC Framework Pipeline Diagram (5 stages)
+    - Literature vs ODTC Comparison Diagram
+    - Model Comparison Before vs After ODTC
+    - Used for thesis chapters and presentations
+  OUTPUT FILES:
+    - outputs/FULL_RESEARCH_ARCHITECTURE.png
+    - outputs/ODTC_FRAMEWORK_DETAILED_PIPELINE.png
+    - outputs/LITERATURE_VS_ODTC_COMPARISON.png
+    - outputs/MODEL_COMPARISON_BEFORE_VS_AFTER.png
+  DEPENDS ON: Nothing (pure visualization)
+
+
+===============================================================================
+4. Realtime_Data_Collection/ - LIVE DATA COLLECTION SYSTEM
+===============================================================================
+
+  FILE: config.py                                           [218 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Configuration File (NOT run directly - imported by others)
+  WHAT IT DEFINES:
+    - API keys: TomTom, OpenWeatherMap
+    - 16 road locations with GPS coordinates, lanes, capacity
+    - API endpoint URLs
+    - File paths for raw and daily data
+    - Collection interval (15 minutes)
+    - Bangalore center coordinates
+  8 AREAS COVERED:
+    Indiranagar, M.G. Road, Koramangala, Whitefield,
+    Jayanagar, Hebbal, Yeshwanthpur, Electronic City
+
+
+  FILE: realtime_data_collector.py                          [572 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Real-Time Traffic Data Collector
+  RUN:      python realtime_data_collector.py [options]
+  OPTIONS:
+    (no args)      - Single collection run for all 16 roads
+    --continuous   - Run every 15 minutes continuously
+    --test         - Test API connections only
+  WHAT IT DOES:
+    - Calls TomTom Traffic Flow API for each of 16 roads
+    - Calls OpenWeatherMap API for Bangalore weather
+    - Calls TomTom Incidents API for accidents/roadwork
+    - Saves every data point to CSV permanently
+    - Handles errors, retries, and partial data gracefully
+  DATA COLLECTED PER ROAD:
+    - TomTom: current_speed, free_flow_speed, travel_time, confidence
+    - Weather: temperature, humidity, wind_speed, visibility, rain
+    - Incidents: count, construction status
+  OUTPUT FILE: data/raw_traffic_data.csv (appends, never overwrites)
+  DEPENDS ON: config.py, active internet, valid API keys
+
+
+  FILE: preprocess_realtime_data.py                         [424 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Convert Raw 15-Min Data to Daily Records
+  RUN:      python preprocess_realtime_data.py [options]
+  OPTIONS:
+    (no args)         - Process all collected data
+    --date YYYY-MM-DD - Process specific date only
+    --report          - Generate data quality report
+  WHAT IT DOES:
+    - Reads raw 15-minute interval records
+    - Groups by (Date, Road) to create daily aggregates
+    - Calculates daily metrics:
+        Average Speed: Mean of all speed readings
+        Travel Time Index: Ratio of actual to free-flow travel time
+        Congestion Level: From jam factor, scaled 0-100
+        Road Capacity Utilization: From speed ratio
+        Traffic Volume: Estimated using Greenshields model
+        Weather: Most frequent condition during the day
+        Incidents & Roadwork: Max count, any construction flag
+    - Adds real API-sourced columns:
+        Temperature, Humidity, Wind Speed, Rain Volume, Visibility,
+        Free Flow Speed, Jam Factor, Confidence
+    - Generates data quality report (completeness, coverage)
+  OUTPUT FILE: data/bangalore_realtime_daily.csv
+  DEPENDS ON: realtime_data_collector.py (needs raw data)
+
+
+  FILE: dashboard.py                                        [1,057 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Interactive Real-Time Data Collection Dashboard
+  RUN:      streamlit run dashboard.py
+  WHAT IT DOES:
+    - Tab 1 - Live Dashboard: Fetch & save data for all 16 roads
+    - Tab 2 - Road Map: Interactive Folium map of Bangalore roads
+    - Tab 3 - Stored Data: Browse, filter, download collected data
+    - Tab 4 - Analytics: Speed trends, congestion by area, hourly
+              patterns, weather impact charts
+    - Tab 5 - Collection Log: Background collector status, success
+              rates, log viewer
+    - Tab 6 - How It Works: Documentation of the collection pipeline
+    - Sidebar: API status, auto-collection start/stop, stats
+    - Every fetch is automatically saved to CSV
+  OUTPUT FILE: data/raw_traffic_data.csv (appends on each fetch)
+  DEPENDS ON: config.py, Streamlit, Plotly, Folium
+
+
+  FILE: setup_scheduler.py                                  [192 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Automate Data Collection via Windows Task Scheduler
+  RUN:      python setup_scheduler.py [options]
+  OPTIONS:
+    --create  - Create scheduled task (runs collector every 15 min)
+    --delete  - Remove scheduled task
+    --status  - Check if task is active
+    --batch   - Create batch scripts for manual scheduling
+  WHAT IT DOES:
+    - Sets up Windows Task Scheduler to run realtime_data_collector.py
+      automatically every 15 minutes
+    - Enables hands-off 24/7 data collection
+  DEPENDS ON: Windows OS, admin privileges
+
+
+  FILE: generate_guide_approval_doc.py                      [786 lines]
+  -----------------------------------------------------------------------
+  PURPOSE:  Generate PhD Guide Approval Document (.docx)
+  RUN:      python generate_guide_approval_doc.py
+  WHAT IT DOES:
+    - Creates a ~15-page Word document for guide/advisor approval
+    - Contents:
+        1. Purpose of the document
+        2. Current research status (work completed so far)
+        3. Why real-time data is needed
+        4. Proposed data collection approach
+        5. API selection & justification (TomTom, OpenWeatherMap)
+        6. Data parameters mapping (API -> dataset columns)
+        7. Collection schedule & duration (3 months)
+        8. Cost analysis ($0 total)
+        9. Technical implementation plan
+       10. Data preprocessing pipeline
+       11. Integration with existing research
+       12. Risk assessment & mitigation
+       13. Timeline
+       14. Expected outcomes
+       15. Approval checklist with signature lines
+  OUTPUT FILE: Realtime_Data_Collection_Approval_Document.docx
+  DEPENDS ON: python-docx library
+
+
+===============================================================================
+FILE COUNT SUMMARY
+===============================================================================
+
+  Root (RAC4_Revised/)              2 files     1,125 lines
+  RAC4_Models/                      6 files     2,839 lines
+  ODTC_Framework/                   2 files     1,758 lines
+  Realtime_Data_Collection/         6 files     3,249 lines
+  -------------------------------------------------------
+  TOTAL                            16 files     8,971 lines
+
+
+===============================================================================
+QUICK REFERENCE: WHAT TO RUN WHEN
+===============================================================================
+
+  Need fresh model results?     -> step6_run_all.py (runs steps 1-5)
+  Need ODTC framework results?  -> step7_ODTC_ML_Framework.py
+  Need thesis diagrams?         -> generate_flow_diagrams.py
+  Need to collect live data?    -> realtime_data_collector.py --continuous
+  Need daily preprocessed data? -> preprocess_realtime_data.py
+  Need live monitoring?         -> streamlit run dashboard.py
+  Need ODTC interactive demo?   -> streamlit run app.py
+  Need guide approval doc?      -> generate_guide_approval_doc.py
+  Need automated collection?    -> setup_scheduler.py --create
+
+===============================================================================

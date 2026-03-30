@@ -1,0 +1,227 @@
+===============================================================================
+GITHUB ACTIONS - 24/7 DATA COLLECTION SETUP GUIDE
+===============================================================================
+Purpose: Run realtime_data_collector.py every 15 min using GitHub's servers.
+         No VM, no server, no PC needed. GitHub runs it for you.
+Cost: $0 (free for public repos, 2000 min/month for private repos)
+===============================================================================
+
+
+===============================================================================
+STEP 1: CREATE A GITHUB REPOSITORY
+===============================================================================
+
+  Option A: From GitHub website
+  ------------------------------
+  1. Go to https://github.com/new
+  2. Repository name: Research_traffic (or any name)
+  3. Set to PUBLIC (free unlimited Actions minutes)
+     NOTE: Your API keys are stored as SECRETS, not in the code.
+           Public repo does NOT expose your keys.
+  4. Do NOT add README/.gitignore (we already have files)
+  5. Click "Create repository"
+
+  Option B: Using GitHub CLI (if installed)
+  ------------------------------------------
+  Open Git Bash:
+
+    cd /c/Users/deepa.c/Videos/Research_traffic/Research_traffic
+    gh repo create Research_traffic --public --source=. --push
+
+
+===============================================================================
+STEP 2: PUSH YOUR CODE TO GITHUB
+===============================================================================
+
+  Open Git Bash and run:
+
+    cd /c/Users/deepa.c/Videos/Research_traffic/Research_traffic
+
+    git init
+    git add .
+    git commit -m "Initial commit: Traffic flow prediction research"
+
+    # Replace YOUR_USERNAME with your GitHub username
+    git remote add origin https://github.com/YOUR_USERNAME/Research_traffic.git
+    git branch -M main
+    git push -u origin main
+
+
+===============================================================================
+STEP 3: ADD API KEYS AS GITHUB SECRETS (CRITICAL!)
+===============================================================================
+
+  This keeps your API keys private even in a public repo.
+
+  1. Go to your repository on GitHub
+  2. Click "Settings" tab (top right)
+  3. Left sidebar: "Secrets and variables" -> "Actions"
+  4. Click "New repository secret"
+
+  Add these 2 secrets:
+
+    Secret 1:
+      Name:  TOMTOM_API_KEY
+      Value: nmELA7Ji6HjL0v0GLUbVwnG7ftYNhVtK
+
+    Secret 2:
+      Name:  OPENWEATHER_API_KEY
+      Value: fee4e815f0f01e4c9c927e839a93cf4a
+
+
+===============================================================================
+STEP 4: ENABLE GITHUB ACTIONS
+===============================================================================
+
+  1. Go to your repository on GitHub
+  2. Click "Actions" tab
+  3. You should see "Collect Traffic Data" workflow
+  4. Click "Enable workflow" if prompted
+  5. Click "Run workflow" -> "Run workflow" to test it manually first
+
+  Wait 1-2 minutes, then check:
+  - The workflow should show a green checkmark
+  - Go to "Code" tab -> RAC4_Revised/Realtime_Data_Collection/data/
+  - You should see raw_traffic_data.csv with new data
+
+
+===============================================================================
+STEP 5: VERIFY IT'S WORKING
+===============================================================================
+
+  After 30-60 minutes, check:
+
+  1. Go to "Actions" tab on your GitHub repo
+  2. You should see multiple "Collect Traffic Data" runs
+  3. Each run should have a green checkmark
+  4. Go to "Code" tab -> check raw_traffic_data.csv is growing
+
+  To check data:
+  - Click on raw_traffic_data.csv in the repo
+  - You'll see the collected data rows
+  - Each run adds 16 new rows (1 per road)
+
+
+===============================================================================
+STEP 6: DOWNLOAD DATA TO YOUR PC (WEEKLY/AS NEEDED)
+===============================================================================
+
+  Option A: Git pull (easiest)
+  -----------------------------
+  Open Git Bash:
+
+    cd /c/Users/deepa.c/Videos/Research_traffic/Research_traffic
+    git pull origin main
+
+  This downloads all new data collected by GitHub Actions.
+
+  Option B: Download from GitHub website
+  ----------------------------------------
+  1. Go to your repo -> RAC4_Revised/Realtime_Data_Collection/data/
+  2. Click raw_traffic_data.csv -> "Download raw file"
+
+
+===============================================================================
+HOW IT WORKS
+===============================================================================
+
+  WHAT HAPPENS EVERY 15 MINUTES:
+  1. GitHub spins up a fresh Ubuntu server
+  2. Checks out your repository code
+  3. Installs Python + requests/pandas/numpy
+  4. Reads API keys from GitHub Secrets (secure)
+  5. Runs realtime_data_collector.py (calls TomTom + OpenWeatherMap)
+  6. Runs preprocess_realtime_data.py (converts to daily format)
+  7. Commits new data rows to the repository
+  8. Pushes changes
+  9. Server is destroyed (clean every time)
+
+  The workflow file is at:
+    .github/workflows/collect_traffic_data.yml
+
+  config.py reads API keys from environment variables:
+    TOMTOM_API_KEY = os.environ.get("TOMTOM_API_KEY", "fallback_key")
+    This means:
+      - On GitHub: uses the secret from GitHub Secrets
+      - On your PC: uses the fallback hardcoded key (for local testing)
+
+
+===============================================================================
+MONITORING
+===============================================================================
+
+  CHECK WORKFLOW RUNS:
+    Go to: https://github.com/YOUR_USERNAME/Research_traffic/actions
+
+  CHECK DATA SIZE:
+    Click on raw_traffic_data.csv in the repo to see row count
+
+  EXPECTED DATA:
+    Per run:     16 rows
+    Per day:     1,536 rows (96 runs x 16 roads)
+    Per month:   ~46,080 rows
+    Per 3 months: ~138,240 rows
+
+  IF A RUN FAILS:
+    - Click on the failed run in Actions tab
+    - Check the error logs
+    - Common issues: API rate limit, network timeout
+    - Don't worry - the next run (15 min later) will retry
+
+
+===============================================================================
+IMPORTANT NOTES
+===============================================================================
+
+  1. CRON TIMING: GitHub Actions cron may have 1-5 minute delays.
+     This is normal and doesn't affect data quality since each record
+     has an exact timestamp.
+
+  2. PUBLIC REPO IS SAFE: Your API keys are in GitHub Secrets, which are:
+     - Encrypted at rest
+     - Never shown in logs (masked as ***)
+     - Only available to your workflow, not to forks or PRs
+
+  3. FREE MINUTES:
+     - Public repos: UNLIMITED Actions minutes
+     - Private repos: 2,000 minutes/month (each run ~2 min = ~2,880 min
+       needed, so use a PUBLIC repo)
+
+  4. GIT HISTORY: Each collection creates a small commit. Over 3 months
+     this means ~8,640 commits. This is fine - GitHub handles it.
+
+  5. MANUAL TRIGGER: You can manually run the workflow anytime:
+     Actions tab -> "Collect Traffic Data" -> "Run workflow"
+
+
+===============================================================================
+STOPPING DATA COLLECTION
+===============================================================================
+
+  When your 3 months are done:
+
+  Option A: Disable the workflow
+    1. Go to Actions tab
+    2. Click "Collect Traffic Data" on the left
+    3. Click "..." menu -> "Disable workflow"
+
+  Option B: Delete the workflow file
+    Delete .github/workflows/collect_traffic_data.yml and push
+
+
+===============================================================================
+QUICK SETUP CHECKLIST
+===============================================================================
+
+  [ ] 1. Create GitHub repo (public)
+  [ ] 2. Push code: git init && git add . && git commit && git push
+  [ ] 3. Add secret: TOMTOM_API_KEY
+  [ ] 4. Add secret: OPENWEATHER_API_KEY
+  [ ] 5. Go to Actions tab -> Enable workflow
+  [ ] 6. Click "Run workflow" to test
+  [ ] 7. Wait 15 min, verify second automatic run appears
+  [ ] 8. Done! Data collects automatically 24/7
+
+  Weekly: git pull to download new data to your PC
+
+===============================================================================

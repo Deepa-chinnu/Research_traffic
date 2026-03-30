@@ -1,0 +1,50 @@
+
+===============================================================================
+TEMPORAL PATTERN ANALYSIS - FLUCTUATION EXPLANATION REPORT
+===============================================================================
+Dataset: Bangalore Traffic Dataset
+Period : 2022-01-01 to 2024-08-09
+
+1. MONTHLY TREND EXPLANATIONS
+------------------------------
+The monthly traffic volume shows several notable fluctuations:
+
+
+2. DAY-OF-WEEK PATTERNS
+------------------------
+  Weekday average: 29297
+  Weekend average: 29084
+  Difference: +0.7%
+
+  Explanation:
+  - Weekdays have higher traffic due to office commutes
+  - Bangalore is an IT hub - weekday traffic dominated by tech workers
+  - Weekend traffic is driven by leisure, shopping, and religious activities
+
+3. SEASONAL PATTERNS (Bangalore-specific)
+-------------------------------------------
+  Q1 (Jan-Mar): Post-holiday normalization, moderate traffic
+  Q2 (Apr-Jun): Summer + pre-monsoon, schools reopen in June
+  Q3 (Jul-Sep): Monsoon season - typically LOWER traffic due to rain
+  Q4 (Oct-Dec): Festival season (Dasara, Diwali, Christmas) - HIGHER traffic
+
+4. WEATHER IMPACT
+-----------------
+  Overcast    : avg volume = 29053
+  Clear       : avg volume = 29167
+  Fog         : avg volume = 29183
+  Rain        : avg volume = 29559
+  Windy       : avg volume = 30163
+
+  Rain and fog conditions generally reduce traffic volume.
+  Clear weather shows moderate traffic levels.
+
+5. KEY INSIGHTS FOR THE MODEL
+-------------------------------
+  - Temporal features (DayOfWeek, Month, Quarter) capture cyclical patterns
+  - Weekend/Weekday flag is a strong binary predictor
+  - Weather conditions add short-term prediction value
+  - Area-specific patterns suggest spatial features are important
+  - Year-over-year trends indicate gradual infrastructure changes
+
+===============================================================================

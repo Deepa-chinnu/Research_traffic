@@ -1,0 +1,338 @@
+===============================================================================
+ORACLE CLOUD FREE TIER - 24/7 DATA COLLECTION SETUP GUIDE
+===============================================================================
+Purpose: Run realtime_data_collector.py every 15 minutes on a free cloud VM
+         so your PC doesn't need to stay on.
+Cost: $0 (Always Free tier - never expires, no credit card charged)
+===============================================================================
+
+
+===============================================================================
+STEP 1: CREATE ORACLE CLOUD ACCOUNT
+===============================================================================
+
+  1. Go to: https://cloud.oracle.com/
+  2. Click "Sign Up" -> "Oracle Cloud Free Tier"
+  3. Fill in details:
+     - Name, Email, Country (India)
+     - Home Region: Choose "India South (Hyderabad)" or "India West (Mumbai)"
+       (closest to Bangalore for lowest API latency)
+  4. Credit card is required for verification ONLY - you will NOT be charged
+     (Free tier resources are always free, Oracle does not auto-upgrade)
+  5. Complete verification and wait for account activation (~5 min)
+
+
+===============================================================================
+STEP 2: CREATE A FREE VM (Virtual Machine)
+===============================================================================
+
+  1. Log in to Oracle Cloud Console: https://cloud.oracle.com/
+  2. Click "Create a VM instance" (or go to Menu > Compute > Instances)
+  3. Configure the VM:
+
+     Name: traffic-collector
+     Compartment: (default)
+
+     Image and Shape:
+       - Click "Edit" next to Image and Shape
+       - Image: "Oracle Linux 8" or "Ubuntu 22.04" (Ubuntu recommended)
+       - Shape: Click "Change Shape"
+         -> "Ampere" tab -> VM.Standard.A1.Flex
+         -> OCPUs: 1, Memory: 6 GB
+         (This is within the Always Free limits: 4 OCPUs, 24 GB total)
+
+     Networking:
+       - Use defaults (new VCN, public subnet)
+
+     SSH Key:
+       - Select "Generate a key pair for me"
+       - Click "Save Private Key" -> save the .key file somewhere safe
+         (e.g., C:\Users\deepa.c\.ssh\oracle_traffic.key)
+       - Also save the public key
+
+     Boot Volume:
+       - Use defaults (50 GB, enough for years of data)
+
+  4. Click "Create"
+  5. Wait 2-3 minutes for the VM to start
+  6. Note the "Public IP Address" shown on the instance page
+     (e.g., 129.154.xx.xx)
+
+
+===============================================================================
+STEP 3: CONNECT TO YOUR VM (SSH)
+===============================================================================
+
+  Option A: Using Git Bash (already installed on your Windows):
+  -------------------------------------------------------------
+  Open Git Bash and run:
+
+    chmod 400 /c/Users/deepa.c/.ssh/oracle_traffic.key
+    ssh -i /c/Users/deepa.c/.ssh/oracle_traffic.key ubuntu@YOUR_PUBLIC_IP
+
+  (Replace YOUR_PUBLIC_IP with the IP from Step 2)
+  (If you chose Oracle Linux, use "opc" instead of "ubuntu")
+
+  Option B: Using Windows PowerShell:
+  ------------------------------------
+    ssh -i C:\Users\deepa.c\.ssh\oracle_traffic.key ubuntu@YOUR_PUBLIC_IP
+
+  Option C: Using PuTTY:
+  -----------------------
+  1. Convert .key to .ppk using PuTTYgen
+  2. Connect using PuTTY with the .ppk file
+
+
+===============================================================================
+STEP 4: INSTALL PYTHON AND DEPENDENCIES ON THE VM
+===============================================================================
+
+  Once connected via SSH, run these commands:
+
+  # Update system
+  sudo apt update && sudo apt upgrade -y
+
+  # Install Python 3 and pip
+  sudo apt install -y python3 python3-pip python3-venv
+
+  # Create project directory
+  mkdir -p ~/traffic_collector/data
+  mkdir -p ~/traffic_collector/logs
+
+  # Create virtual environment
+  cd ~/traffic_collector
+  python3 -m venv venv
+  source venv/bin/activate
+
+  # Install required packages
+  pip install requests pandas numpy
+
+
+===============================================================================
+STEP 5: UPLOAD YOUR SCRIPTS TO THE VM
+===============================================================================
+
+  Option A: Using SCP (from your Windows Git Bash):
+  --------------------------------------------------
+  Open a NEW Git Bash window on your PC (don't close the SSH session):
+
+    KEY="/c/Users/deepa.c/.ssh/oracle_traffic.key"
+    IP="YOUR_PUBLIC_IP"
+    SRC="/c/Users/deepa.c/Videos/Research_traffic/Research_traffic/RAC4_Revised/Realtime_Data_Collection"
+
+    scp -i $KEY $SRC/config.py ubuntu@$IP:~/traffic_collector/
+    scp -i $KEY $SRC/realtime_data_collector.py ubuntu@$IP:~/traffic_collector/
+    scp -i $KEY $SRC/preprocess_realtime_data.py ubuntu@$IP:~/traffic_collector/
+
+  Option B: Using nano/vi to paste the files:
+  --------------------------------------------
+  On the VM, use nano to create each file and paste the content:
+
+    nano ~/traffic_collector/config.py
+    (paste content, Ctrl+O to save, Ctrl+X to exit)
+
+  Option C: Using Git:
+  ---------------------
+  If your code is on GitHub:
+
+    cd ~/traffic_collector
+    git clone https://github.com/YOUR_REPO.git .
+
+
+===============================================================================
+STEP 6: VERIFY API KEYS AND TEST
+===============================================================================
+
+  On the VM:
+
+  cd ~/traffic_collector
+  source venv/bin/activate
+
+  # Edit config.py to ensure API keys are correct
+  nano config.py
+  # Verify TOMTOM_API_KEY and OPENWEATHER_API_KEY are set
+
+  # Test the collector
+  python realtime_data_collector.py --test
+
+  # If test passes, do a single collection run
+  python realtime_data_collector.py
+
+  # Check that data was saved
+  ls -la data/
+  head data/raw_traffic_data.csv
+
+
+===============================================================================
+STEP 7: SET UP AUTOMATIC COLLECTION (CRON JOB)
+===============================================================================
+
+  On the VM, set up cron to run every 15 minutes:
+
+  # Open crontab editor
+  crontab -e
+
+  # If asked, choose nano as editor (option 1)
+
+  # Add this line at the bottom:
+  */15 * * * * cd /home/ubuntu/traffic_collector && /home/ubuntu/traffic_collector/venv/bin/python realtime_data_collector.py >> /home/ubuntu/traffic_collector/logs/cron.log 2>&1
+
+  # Save and exit (Ctrl+O, Enter, Ctrl+X)
+
+  # Verify cron job is set
+  crontab -l
+
+  WHAT THIS DOES:
+  - */15 * * * * = every 15 minutes, 24/7
+  - Runs the collector script
+  - Logs output to cron.log
+  - Runs automatically even after VM restart
+
+
+===============================================================================
+STEP 8: SET UP DAILY PREPROCESSING (OPTIONAL)
+===============================================================================
+
+  Add another cron job to preprocess data daily at midnight:
+
+  crontab -e
+
+  # Add this line:
+  5 0 * * * cd /home/ubuntu/traffic_collector && /home/ubuntu/traffic_collector/venv/bin/python preprocess_realtime_data.py >> /home/ubuntu/traffic_collector/logs/preprocess.log 2>&1
+
+  # This runs at 00:05 AM every day
+
+
+===============================================================================
+STEP 9: DOWNLOAD DATA TO YOUR PC (WEEKLY/AS NEEDED)
+===============================================================================
+
+  From your Windows Git Bash, download the collected data:
+
+  # Download raw data
+  scp -i /c/Users/deepa.c/.ssh/oracle_traffic.key \
+      ubuntu@YOUR_PUBLIC_IP:~/traffic_collector/data/raw_traffic_data.csv \
+      /c/Users/deepa.c/Videos/Research_traffic/Research_traffic/RAC4_Revised/Realtime_Data_Collection/data/
+
+  # Download daily preprocessed data
+  scp -i /c/Users/deepa.c/.ssh/oracle_traffic.key \
+      ubuntu@YOUR_PUBLIC_IP:~/traffic_collector/data/bangalore_realtime_daily.csv \
+      /c/Users/deepa.c/Videos/Research_traffic/Research_traffic/RAC4_Revised/Realtime_Data_Collection/data/
+
+  TIP: Create a batch script on your PC for easy download:
+  (Save as download_data.sh in Realtime_Data_Collection/)
+
+    #!/bin/bash
+    KEY="/c/Users/deepa.c/.ssh/oracle_traffic.key"
+    IP="YOUR_PUBLIC_IP"
+    DEST="/c/Users/deepa.c/Videos/Research_traffic/Research_traffic/RAC4_Revised/Realtime_Data_Collection/data"
+    scp -i $KEY ubuntu@$IP:~/traffic_collector/data/*.csv $DEST/
+    echo "Data downloaded to $DEST"
+
+
+===============================================================================
+STEP 10: MONITORING AND MAINTENANCE
+===============================================================================
+
+  CHECK IF COLLECTION IS RUNNING:
+  --------------------------------
+  SSH into VM and run:
+
+    # Check recent cron executions
+    tail -20 ~/traffic_collector/logs/cron.log
+
+    # Check data file size (should grow daily)
+    ls -lh ~/traffic_collector/data/raw_traffic_data.csv
+
+    # Count records
+    wc -l ~/traffic_collector/data/raw_traffic_data.csv
+
+    # Check last few records
+    tail -5 ~/traffic_collector/data/raw_traffic_data.csv
+
+
+  EXPECTED DATA GROWTH:
+  ----------------------
+    Per collection:  16 rows (1 per road)
+    Per day:         1,536 rows (16 roads x 96 intervals)
+    Per week:        10,752 rows
+    Per month:       ~46,080 rows
+    Per 3 months:    ~138,240 rows
+    File size:       ~500 KB/day, ~45 MB over 3 months
+
+
+  IF SOMETHING GOES WRONG:
+  -------------------------
+    # Check if cron is running
+    systemctl status cron
+
+    # Check cron logs
+    grep CRON /var/log/syslog | tail -20
+
+    # Manually test the script
+    cd ~/traffic_collector
+    source venv/bin/activate
+    python realtime_data_collector.py --test
+
+    # Restart cron if needed
+    sudo systemctl restart cron
+
+
+===============================================================================
+STEP 11: ENSURE VM SURVIVES REBOOT
+===============================================================================
+
+  Oracle Free Tier VMs may occasionally restart. Cron jobs survive reboots
+  automatically, but add this safety net:
+
+  # Create a startup script
+  sudo nano /etc/cron.d/traffic_collector
+
+  # Add:
+  */15 * * * * ubuntu cd /home/ubuntu/traffic_collector && /home/ubuntu/traffic_collector/venv/bin/python realtime_data_collector.py >> /home/ubuntu/traffic_collector/logs/cron.log 2>&1
+
+  # Save and exit
+
+
+===============================================================================
+STEP 12: OPEN FIREWALL (ONLY IF NEEDED)
+===============================================================================
+
+  The VM only needs OUTBOUND internet access (to call APIs).
+  This is enabled by default. No firewall changes needed.
+
+  DO NOT open inbound ports unless you have a specific reason.
+
+
+===============================================================================
+QUICK REFERENCE
+===============================================================================
+
+  CONNECT:    ssh -i ~/.ssh/oracle_traffic.key ubuntu@YOUR_IP
+  CHECK DATA: tail -5 ~/traffic_collector/data/raw_traffic_data.csv
+  CHECK LOG:  tail -20 ~/traffic_collector/logs/cron.log
+  COUNT ROWS: wc -l ~/traffic_collector/data/raw_traffic_data.csv
+  DOWNLOAD:   scp -i KEY ubuntu@IP:~/traffic_collector/data/*.csv ./data/
+
+  IMPORTANT DATES:
+  - Collection started: ________________
+  - Expected end (3 months): ________________
+  - Weekly data download: Every Sunday
+
+
+===============================================================================
+COST SUMMARY
+===============================================================================
+
+  Oracle Cloud Free Tier (Always Free):
+    - 1 ARM VM (1 OCPU, 6 GB RAM): $0/month
+    - 50 GB storage: $0/month
+    - Outbound data: $0/month (within free tier)
+    - Total for 3 months: $0
+
+  APIs:
+    - TomTom: $0 (within 2,500/day free limit)
+    - OpenWeatherMap: $0 (within 1,000/day free limit)
+
+  GRAND TOTAL: $0
+===============================================================================

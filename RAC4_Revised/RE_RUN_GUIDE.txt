@@ -1,0 +1,175 @@
+===============================================================================
+RE-RUN GUIDE: Regenerate All Results After Removing 5 Fabricated Columns
+===============================================================================
+Date: 2026-03-26
+Reason: Removed Environmental Impact, Public Transport Usage,
+        Traffic Signal Compliance, Parking Usage, Pedestrian and Cyclist Count
+===============================================================================
+
+
+WHAT WAS DELETED (old results with 10 features):
+  - RAC4_Models/processed_data/        (train/test CSVs, metadata)
+  - RAC4_Models/01_Preprocessing/      (EDA plots, correlation heatmap)
+  - RAC4_Models/03_Models/             (all 27 model configs, 136 files)
+  - RAC4_Models/04_Comparison/         (model ranking, comparison charts)
+  - RAC4_Models/05_Improvements/       (hyperparameter tuning results)
+  - ODTC_Framework/outputs/            (ODTC framework results)
+
+WHAT WAS KEPT (not affected by column removal):
+  - RAC4_Models/02_Temporal_Analysis/  (time-based plots, no feature dependency)
+  - Realtime_Data_Collection/data/     (raw API data)
+  - RAC4/Banglore_traffic_Dataset.csv  (original Kaggle dataset, untouched)
+
+
+===============================================================================
+PHASE 1: INDIVIDUAL ML MODELS  (Run from RAC4_Models/ folder)
+===============================================================================
+
+  cd RAC4_Revised/RAC4_Models
+
+  STEP 1: python step1_data_preprocessing.py
+          - What: Loads Kaggle dataset, now uses only 5 numeric features
+          - Creates: outputs/processed_data/  (X_train.csv, X_test.csv, etc.)
+          - Creates: outputs/01_Preprocessing/ (correlation heatmap, EDA plots)
+          - Time: ~2 minutes
+          - MUST RUN FIRST (all other steps depend on this)
+
+  STEP 2: python step2_temporal_analysis.py
+          - What: Temporal trend analysis (monthly, weekly, seasonal)
+          - Creates: outputs/02_Temporal_Analysis/ (trend plots, report)
+          - Time: ~1-2 minutes
+          - NOTE: Already exists and is NOT affected, but re-run if you want
+
+  STEP 3: python step3_model_training.py
+          - What: Trains 10 ML models individually with detailed evaluation
+          - Models: LinearRegression, Ridge, Lasso, ElasticNet, SVR, KNN,
+                    DecisionTree, RandomForest, ExtraTrees, GradientBoosting
+          - Creates: outputs/03_Models/ (predicted_vs_actual plots, reports)
+          - Creates: outputs/03_Models/all_results_comparison.csv
+          - Time: ~5-10 minutes
+          - DEPENDS ON: Step 1
+
+  STEP 4: python step4_model_comparison.py
+          - What: Compares all models, creates ranking and recommendation
+          - Creates: outputs/04_Comparison/ (R2 charts, radar chart, ranking)
+          - Time: ~1-2 minutes
+          - DEPENDS ON: Step 3 (reads all_results_comparison.csv)
+
+  STEP 5: python step5_model_improvements.py
+          - What: Hyperparameter tuning, before/after improvement analysis
+          - Creates: outputs/05_Improvements/ (tuning plots, summary)
+          - Time: ~3-5 minutes
+          - DEPENDS ON: Step 1
+
+  SHORTCUT: python step6_run_all.py
+            - Runs Steps 1-5 automatically in sequence
+            - Time: ~15 minutes total
+
+
+===============================================================================
+PHASE 2: ODTC FRAMEWORK  (Run from ODTC_Framework/ folder)
+===============================================================================
+
+  cd RAC4_Revised/ODTC_Framework
+
+  STEP 7: python step7_ODTC_ML_Framework.py
+          - What: Runs the full 5-stage ODTC pipeline
+                  Stage 1: Multi-Scale Temporal Feature Engineering (MSTFE)
+                  Stage 2: Dynamic Context Enrichment (DCE)
+                  Stage 3: Adaptive Feature Selection (AFS)
+                  Stage 4: Multi-Model Ensemble with Stacking (MES)
+                  Stage 5: Online Adaptation Module (OAM)
+          - Creates: outputs/ (feature_selection.png, framework_report.txt, etc.)
+          - Time: ~5-10 minutes
+          - INDEPENDENT: Reads raw Kaggle dataset directly (not Step 1 output)
+          - NOTE: Now excludes 5 fabricated columns via EXCLUDE_COLS safety net
+
+  OPTIONAL: python generate_flow_diagrams.py
+            - What: Generates research architecture diagrams for thesis
+            - Creates: outputs/ (FULL_RESEARCH_ARCHITECTURE.png, etc.)
+            - Time: ~30 seconds
+            - INDEPENDENT: Pure visualization, no data dependency
+
+
+===============================================================================
+PHASE 3: REAL-TIME DATA COLLECTION  (Run from Realtime_Data_Collection/ folder)
+===============================================================================
+  These are for live data collection - run only when needed.
+
+  cd RAC4_Revised/Realtime_Data_Collection
+
+  python realtime_data_collector.py --test     Test API connections
+  python realtime_data_collector.py            Single collection run
+  python realtime_data_collector.py --continuous   Run every 15 min
+
+  python preprocess_realtime_data.py           Convert raw -> daily format
+  python preprocess_realtime_data.py --report  Generate quality report
+
+  streamlit run dashboard.py                   Open interactive dashboard
+
+  python generate_guide_approval_doc.py        Regenerate approval document
+
+
+===============================================================================
+PHASE 4: INTERACTIVE APP  (Run from RAC4_Revised/ root)
+===============================================================================
+
+  cd RAC4_Revised
+  streamlit run app.py                         ODTC framework visualization
+
+
+===============================================================================
+RECOMMENDED FULL RE-RUN ORDER (copy-paste ready)
+===============================================================================
+
+  cd RAC4_Revised/RAC4_Models
+  python step1_data_preprocessing.py
+  python step2_temporal_analysis.py
+  python step3_model_training.py
+  python step4_model_comparison.py
+  python step5_model_improvements.py
+
+  cd ../ODTC_Framework
+  python step7_ODTC_ML_Framework.py
+  python generate_flow_diagrams.py
+
+  cd ../Realtime_Data_Collection
+  python generate_guide_approval_doc.py
+
+
+===============================================================================
+DEPENDENCY GRAPH
+===============================================================================
+
+  Kaggle Dataset (Banglore_traffic_Dataset.csv)
+      |
+      +---> step1 ---> processed_data/
+      |         |
+      |         +---> step2 (temporal analysis)
+      |         +---> step3 (model training) ---> step4 (comparison)
+      |         +---> step5 (improvements)
+      |
+      +---> step7 (ODTC framework, independent)
+
+  Real-Time APIs
+      |
+      +---> realtime_data_collector.py ---> raw_traffic_data.csv
+                |
+                +---> preprocess_realtime_data.py ---> daily CSV
+                |
+                +---> dashboard.py (live visualization)
+
+
+===============================================================================
+EXPECTED CHANGES IN RESULTS
+===============================================================================
+
+  - R² scores will likely be LOWER than before (especially for models that
+    relied on Environmental Impact's perfect r=+1.0 correlation)
+  - This is CORRECT and HONEST - the old results had data leakage
+  - Feature importance plots will show only real, API-sourced features
+  - Correlation heatmap will no longer show the suspicious +1.0 correlation
+  - ODTC Framework will still outperform individual models (it uses
+    temporal features and ensembling which don't depend on fabricated columns)
+
+===============================================================================

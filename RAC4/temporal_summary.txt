@@ -1,0 +1,25 @@
+Temporal Pattern Analysis Summary
+================================
+Short-term (next day) prediction R²: 0.092, RMSE: 12412.7
+Long-term (next week) prediction R²: 0.847, RMSE: 3124.2
+
+Long-term predictions are as accurate as short-term, suggesting strong periodic patterns.
+Including temporal context (day of week, month) as features helps both short- and long-term prediction.
+
+RMSE: Root Mean Squared Error
+
+It measures the square root of the average of squared differences between predicted and actual values.
+
+It gives higher weight to large errors.
+
+Lower RMSE = better model.
+
+MAE: Mean Absolute Error
+
+It measures the average of absolute differences between predicted and actual values.
+
+It treats all errors equally, making it more robust to outliers than RMSE.
+
+Lower MAE = better model.
+
+Both are used to evaluate regression models like the one in your traffic volume prediction work.
