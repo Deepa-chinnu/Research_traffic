@@ -7,9 +7,13 @@ on:
   workflow_dispatch:
     # Allow manual trigger from GitHub Actions tab
 
+permissions:
+  contents: write
+
 env:
   TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
   OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   collect:
