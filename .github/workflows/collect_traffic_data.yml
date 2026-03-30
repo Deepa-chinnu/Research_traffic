@@ -2,18 +2,20 @@ name: Collect Traffic Data
 
 on:
   schedule:
-    # Run every 15 minutes, 24/7
     - cron: '*/15 * * * *'
   workflow_dispatch:
-    # Allow manual trigger from GitHub Actions tab
 
 permissions:
   contents: write
 
+# Prevent concurrent runs from conflicting
+concurrency:
+  group: traffic-data-collection
+  cancel-in-progress: false
+
 env:
   TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
   OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   collect:
@@ -23,6 +25,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,6 +35,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests pandas numpy
+
+      - name: Create data directory
+        run: mkdir -p RAC4_Revised/Realtime_Data_Collection/data
 
       - name: Run data collector
         working-directory: RAC4_Revised/Realtime_Data_Collection
@@ -43,9 +50,9 @@ jobs:
 
       - name: Commit and push data
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-          git add RAC4_Revised/Realtime_Data_Collection/data/
-          # Only commit if there are changes
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add RAC4_Revised/Realtime_Data_Collection/data/ || true
           git diff --staged --quiet || git commit -m "Auto-collect traffic data $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push
+          git pull --rebase origin main || true
+          git push origin main
