@@ -1,0 +1,33 @@
+Date,Area Name,Road/Intersection Name,Traffic Volume,Average Speed,Travel Time Index,Congestion Level,Road Capacity Utilization,Incident Reports,Weather Conditions,Roadwork and Construction Activity,Temperature,Humidity,Wind Speed,Rain Volume,Visibility,Free Flow Speed,Jam Factor,Confidence
+2026-03-26,Electronic City,Hosur Road,104000,23.0,1.3014,23.3,23.33,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,30.0,2.33,1.0
+2026-03-26,Electronic City,Silk Board Junction,102535,19.0,1.4742,32.1,32.14,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,28.0,3.21,1.0
+2026-03-26,Hebbal,Ballari Road,90750,27.0,1.3333,25.0,25.0,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,36.0,2.5,0.93
+2026-03-26,Hebbal,Hebbal Flyover,117750,31.0,1.5473,35.4,35.42,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,48.0,3.54,1.0
+2026-03-26,Indiranagar,100 Feet Road,70285,15.0,1.4,28.6,28.57,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,21.0,2.86,1.0
+2026-03-26,Indiranagar,CMH Road,65249,19.0,1.4728,32.1,32.14,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,28.0,3.21,1.0
+2026-03-26,Jayanagar,Jayanagar 4th Block,60465,21.0,1.3787,27.6,27.59,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,29.0,2.76,1.0
+2026-03-26,Jayanagar,South End Circle,101896,18.0,1.6111,37.9,37.93,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,29.0,3.79,0.9934
+2026-03-26,Koramangala,Sarjapur Road,49605,32.0,1.156,13.5,13.51,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,37.0,1.35,1.0
+2026-03-26,Koramangala,Sony World Junction,67111,20.0,1.3512,25.9,25.93,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,27.0,2.59,1.0
+2026-03-26,M.G. Road,Anil Kumble Circle,97173,15.0,1.5345,34.8,34.78,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,23.0,3.48,1.0
+2026-03-26,M.G. Road,Trinity Circle,92142,24.0,1.4581,31.4,31.43,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,35.0,3.14,1.0
+2026-03-26,Whitefield,ITPL Main Road,60827,23.0,1.2608,20.7,20.69,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,29.0,2.07,0.995
+2026-03-26,Whitefield,Marathahalli Bridge,39600,26.0,1.0,0.0,0.0,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,26.0,0.0,1.0
+2026-03-26,Yeshwanthpur,Tumkur Road,43200,19.0,1.0,0.0,0.0,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,19.0,0.0,1.0
+2026-03-26,Yeshwanthpur,Yeshwanthpur Circle,87187,23.0,1.3914,28.1,28.12,0,Windy,No,30.56,32.0,9.39,0.0,6000.0,32.0,2.81,1.0
+2026-03-30,Electronic City,Hosur Road,78000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Electronic City,Silk Board Junction,66000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Hebbal,Ballari Road,66000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Hebbal,Hebbal Flyover,72000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Indiranagar,100 Feet Road,48000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Indiranagar,CMH Road,42000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Jayanagar,Jayanagar 4th Block,42000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Jayanagar,South End Circle,60000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Koramangala,Sarjapur Road,45600,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Koramangala,Sony World Junction,48000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,M.G. Road,Anil Kumble Circle,60000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,M.G. Road,Trinity Circle,60000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Whitefield,ITPL Main Road,48000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Whitefield,Marathahalli Bridge,66000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Yeshwanthpur,Tumkur Road,72000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
+2026-03-30,Yeshwanthpur,Yeshwanthpur Circle,60000,30.0,1.0,50.0,50.0,0,Clear,No,,,,0.0,,,,
