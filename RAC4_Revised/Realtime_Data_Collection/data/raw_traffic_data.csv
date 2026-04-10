@@ -4111,3 +4111,19 @@ timestamp,date,time,hour,day_of_week,road_name,area_name,latitude,longitude,tomt
 2026-04-10 20:35:19,2026-04-10,20:35:19,20,4,Yeshwanthpur Circle,Yeshwanthpur,13.027,77.554,23,32,1973,1418,1,False,23,32,2.81,open,Clouds,scattered clouds,29.5,56,3.09,6000,0,6,junction,5000,0,False,success
 2026-04-10 20:35:19,2026-04-10,20:35:19,20,4,Hosur Road,Electronic City,12.892,77.646,31,31,282,282,1,False,31,31,0.0,open,Clouds,scattered clouds,29.5,56,3.09,6000,0,6,highway,6500,0,False,success
 2026-04-10 20:35:19,2026-04-10,20:35:19,20,4,Silk Board Junction,Electronic City,12.9173,77.6229,18,27,512,341,1,False,18,27,3.33,open,Clouds,scattered clouds,29.5,56,3.09,6000,0,6,junction,5500,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,100 Feet Road,Indiranagar,12.9719,77.6412,15,21,616,440,1,False,15,21,2.86,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,4,arterial,4000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,CMH Road,Indiranagar,12.9686,77.6403,22,29,1310,994,1,False,22,29,2.41,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,4,arterial,3500,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Trinity Circle,M.G. Road,12.9716,77.6197,29,35,1815,1504,1,False,29,35,1.71,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,junction,5000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Anil Kumble Circle,M.G. Road,12.978,77.599,23,23,290,290,1,False,23,23,0.0,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,junction,5000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Sony World Junction,Koramangala,12.934,77.6165,20,25,1358,1086,1,False,20,25,2.0,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,4,junction,4000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Sarjapur Road,Koramangala,12.91,77.668,37,37,1603,1603,1,False,37,37,0.0,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,4,arterial,3800,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Marathahalli Bridge,Whitefield,12.9591,77.701,26,26,91,91,1,False,26,26,0.0,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,bridge,5500,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,ITPL Main Road,Whitefield,12.9857,77.7263,25,31,943,761,1,False,25,31,1.94,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,4,arterial,4000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Jayanagar 4th Block,Jayanagar,12.925,77.583,21,29,375,272,1,False,21,29,2.76,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,4,arterial,3500,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,South End Circle,Jayanagar,12.939,77.577,19,30,522,330,0.99,False,19,30,3.67,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,junction,5000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Hebbal Flyover,Hebbal,13.0358,77.597,47,47,399,399,1,False,47,47,0.0,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,flyover,6000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Ballari Road,Hebbal,13.01,77.575,28,36,274,213,0.920233,False,28,36,2.22,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,arterial,5500,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Tumkur Road,Yeshwanthpur,13.022,77.551,15,19,562,444,1,False,15,19,2.11,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,highway,6000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Yeshwanthpur Circle,Yeshwanthpur,13.027,77.554,27,32,1681,1418,0.998714,False,27,32,1.56,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,junction,5000,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Hosur Road,Electronic City,12.892,77.646,31,31,282,282,1,False,31,31,0.0,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,highway,6500,0,False,success
+2026-04-10 21:37:04,2026-04-10,21:37:04,21,4,Silk Board Junction,Electronic City,12.9173,77.6229,21,27,439,341,1,False,21,27,2.22,open,Clouds,overcast clouds,29.52,44,6.02,10000,0,6,junction,5500,0,False,success
